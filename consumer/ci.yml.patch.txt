@@ -1,0 +1,25 @@
+# 呼び出し側の共通 ci.yml (再利用ワークフロー) の secret-scan ジョブの段の例。
+# gitleaks の段を置き換え、その後ろに repo-hygiene の段を1つ足す。新しいジョブは足さない。
+# 前提: actions/checkout@v4 を fetch-depth: 0 で取っていること (PR の base..head と push の before..HEAD を読むため)。
+      - name: gitleaks (secret scan, CLI / no license key needed)
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          IMG=ghcr.io/gitleaks/gitleaks:v8.30.1   # 版を固定 (image は git 入り・safe.directory '*' 設定済み)
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            # PR は base..head の履歴を見る (足して消した鍵も拾う)
+            docker run --rm -v "$PWD:/repo" -w /repo "$IMG" \
+              git . --no-banner --config .gitleaks.toml --redact --verbose \
+              --log-opts="$BASE_SHA..$HEAD_SHA"
+          else
+            docker run --rm -v "$PWD:/repo" -w /repo "$IMG" \
+              dir . --no-banner --config .gitleaks.toml --redact --verbose
+          fi
+
+      - name: repo-hygiene (forbidden names / large files / PII shape / fixture copies)
+        if: always()                       # gitleaks が赤でもこちらは走らせる
+        uses: circl-tyo/repo-hygiene@<40桁のSHA>   # タグの SHA で固定する。上げるときは新しいタグの SHA に書き換える
+        with:
+          fail_on_new_forbidden_names: "true"

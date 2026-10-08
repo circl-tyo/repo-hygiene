@@ -1,0 +1,39 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  secret-scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks (secret scan, CLI / no license key needed)
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          IMG=ghcr.io/gitleaks/gitleaks:v8.30.1
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            docker run --rm -v "$PWD:/repo" -w /repo "$IMG" \
+              git . --no-banner --config .gitleaks.toml --redact --verbose \
+              --log-opts="$BASE_SHA..$HEAD_SHA"
+          else
+            docker run --rm -v "$PWD:/repo" -w /repo "$IMG" \
+              dir . --no-banner --config .gitleaks.toml --redact --verbose
+          fi
+      - name: selftest
+        run: bash tests/selftest.sh
+      - name: repo-hygiene (this repo)
+        if: always()
+        uses: ./
+        with:
+          fail_on_new_forbidden_names: "true"

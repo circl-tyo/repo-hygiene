@@ -1,0 +1,12 @@
+# repo-hygiene の例外 (各リポの直下に .repo-hygiene-allow として置く。1行1件 "種類:値"。# は注釈)
+# 例外は理由の注釈を1行添えて、各リポ側にだけ書く (このリポには組織の例外を置かない)
+# name:<ERE>          名前の型から外す (pre-commit と CI の両方)
+# large:<ERE>         大きさの検査から外す
+# fixture:<ERE>       試験データの検査から外す
+# pii-path:<ERE>      個人情報の検査から外す道
+# email:<addr>        このアドレスは数えない
+# email-domain:<dom>  このドメイン (とサブドメイン) のアドレスは数えない
+#
+# 書き方の例 (値は置き換える):
+# name:^docs/sample\.log$
+# email-domain:your-company.example

@@ -1,0 +1,14 @@
+# 入れてはいけないファイル名 (ERE。1行1型。# は注釈)。pre-commit と CI の両方がこの1ファイルを読む。
+# 既定の例外 (台本側で外す): .env*.example / .env*.sample / .env*.template
+# 記録の写し
+\.(log|jsonl)$
+# データベース・dump・バックアップの写し
+\.(sqlite|sqlite3|db|dump|bak)$
+(^|/)[^/]*(dump|backup)[^/]*\.(sql|json|jsonl|csv|tsv|gz|zip|tar|tgz)$
+# 手元だけの設定
+(^|/)\.env(\.[^/]*)?$
+(^|/)\.claude/settings\.local\.json$
+# OS のごみ
+(^|/)\.DS_Store$
+# 鍵のファイル (中身は detect-private-key が見る。名前でも止める)
+\.(pem|key|p12|pfx|jks)$

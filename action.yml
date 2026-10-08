@@ -1,0 +1,30 @@
+name: repo-hygiene
+description: 入れてはいけない物 (記録の写し・dump・手元だけの設定・鍵の名前・大きなファイル・個人情報の形・試験用フォルダの本番データの写しの疑い) を検査する。鍵の中身は gitleaks が担当 (ここでは見ない)。
+inputs:
+  fail_on_new_forbidden_names:
+    description: この回で足された「入れてはいけない名前」があれば段を赤にする (false なら知らせるだけ)
+    required: false
+    default: "true"
+  large_kb:
+    description: 知らせる大きさ (KB)。ロックファイルは除く
+    required: false
+    default: "1024"
+  fixture_kb:
+    description: 試験用フォルダの json/csv をこの大きさ (KB) 超で知らせる
+    required: false
+    default: "50"
+  max_annotations:
+    description: PR/commit に付ける注記の上限 (GitHub は1段あたり10件で打ち切る)
+    required: false
+    default: "10"
+runs:
+  using: composite
+  steps:
+    - name: repo-hygiene
+      shell: bash
+      env:
+        HYG_FAIL_ON_NEW_NAMES: ${{ inputs.fail_on_new_forbidden_names }}
+        HYG_LARGE_KB: ${{ inputs.large_kb }}
+        HYG_FIXTURE_KB: ${{ inputs.fixture_kb }}
+        HYG_MAX_ANNOTATIONS: ${{ inputs.max_annotations }}
+      run: bash "$GITHUB_ACTION_PATH/bin/repo-hygiene.sh"

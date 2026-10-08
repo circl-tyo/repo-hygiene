@@ -1,0 +1,6 @@
+- id: forbid-local-artifacts
+  name: forbid logs / dumps / .env / settings.local.json
+  description: 入れてはいけないファイル名 (patterns/forbidden-names.regex) を commit の前で止める
+  entry: bin/forbid-names.sh
+  language: unsupported_script   # pre-commit 4.x の名前 (旧 "script")。hook リポの中の台本をそのまま実行する
+  pass_filenames: true

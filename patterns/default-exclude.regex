@@ -1,0 +1,2 @@
+# 型に当たっても外す既定の例外 (ERE)。リポごとの例外は .repo-hygiene-allow の name: 行。
+(^|/)\.env(\.[^/]*)?\.(example|sample|template)$

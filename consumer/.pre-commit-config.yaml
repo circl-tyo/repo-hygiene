@@ -7,6 +7,7 @@ repos:
     hooks:
       - id: gitleaks-system            # 手元に入っている gitleaks (/usr/local/bin) を使う。Go の組み立て不要
         args: ['--config=.gitleaks.toml']
+        pass_filenames: false            # gitleaks git --staged は index を自分で読む。ファイル名を渡すと「引数は1つまで」で落ちる
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
     hooks:
